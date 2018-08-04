@@ -1,7 +1,7 @@
 
 
 
-# 预定义常量
+## 预定义常量
 
 ```
 	SeekStart   = 0  相对于数据源的开始
@@ -9,7 +9,7 @@
 	SeekEnd     = 2   相对于数据源的末尾
 ```
 
-# 预定义的错误
+## 预定义的错误
 ```
 // ErrShortWrite means that a write accepted fewer bytes than requested
 // but failed to return an explicit error.
@@ -35,16 +35,18 @@ var ErrUnexpectedEOF = errors.New("unexpected EOF")
 var ErrNoProgress = errors.New("multiple Read calls return no data or error")
 ````
 
-# 各种io接口
+## 各种io接口
 
 
 ```
+把self的数据读取到p中
 type Reader interface {
 	Read(p []byte) (n int, err error)
 }
 ```
 
 ```
+把p中的数据写入到self
 type Writer interface {
 	Write(p []byte) (n int, err error)
 }

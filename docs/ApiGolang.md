@@ -1,7 +1,7 @@
 # arthive
 # bufio
 # builtin
-# bytes
+# [bytes](/api/golang/bytes.md)
 # cmd
 # compress
 # container
