@@ -1,6 +1,6 @@
 
 
-##bytes
+#bytes
 
   Buffer模块主要是使用在缓存读取的数据场景,就是先把数据缓存到buf中然后通过各种io接口花样读取
 ```
@@ -17,5 +17,5 @@ var errNegativeRead = errors.New("bytes.Buffer: reader returned negative count f
 ```
 
 
-##buffer
-##reader
+#buffer
+#reader
