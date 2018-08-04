@@ -18,7 +18,7 @@
 # hash
 # html
 # internal
-# io
+# [io](/api/golang/io.md)
 # log
 # math
 # mime
