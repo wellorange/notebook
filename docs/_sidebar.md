@@ -1,6 +1,6 @@
 * API DOCUMENT
 
-  * [golang](asm.md)
+  * [asm](asm.md)
 
 * ARTIFICIAL INTELLIGENCE
 
