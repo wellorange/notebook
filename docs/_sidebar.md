@@ -5,6 +5,7 @@
 * ARTIFICIAL INTELLIGENCE
 
 * ARITHMETIC
+  * [基本数据结构](structure.md)
 
 * BACKEND
 

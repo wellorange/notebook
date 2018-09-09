@@ -1,0 +1,36 @@
+[package]
+name = "lib"
+version = "0.1.0"
+authors = ["Your Name <you@example.com>"]
+
+[dependencies]
+
+[lib]
+
+#库名称,默认要与项目的名称相同
+name="lib"
+
+# 此选项仅用于[lib]段落，其决定构建目标的构建方式，
+# 可以取dylib, rlib, staticlib 三种值之一，表示生成动态库、r库或者静态库。
+crate-type = ["dylib"]
+
+# path字段声明了此构建目标相对于cargo.toml文件的相对路径
+path = "src/lib.rs"
+
+# 单元测试开关选项
+test = true
+
+# 文档测试开关选项
+doctest = true
+
+# 性能评估开关选项
+bench = true
+
+# 文档生成开关选项
+doc = true
+
+# 是否构建为编译器插件的开关选项
+plugin = false
+
+# 如果设置为false，`cargo test`将会忽略传递给rustc的--test参数。
+harness = true

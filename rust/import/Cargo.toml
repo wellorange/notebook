@@ -1,0 +1,61 @@
+
+# 项目描述
+[package]
+
+# 项目名称
+name = "import"    
+
+# 项目的版本号
+version = "0.1.0"
+
+# build构建脚本文件,比如由依赖c/c++的时候可以通过这个构建脚本先构建在build
+build   ="build.rs"
+
+# 作者邮箱
+authors = ["Your Name <you@example.com>"]
+
+# 显式声明软件包文件夹内哪些文件被排除在项目的构建流程之外，
+# 哪些文件包含在项目的构建流程中
+#exclude = ["build/**/*.o", "doc/**/*.html"]
+#include = ["src/**/*", "Cargo.toml"]
+
+# 当软件包在向公共仓库发布时出现错误时，使能此字段可以阻止此错误。
+publish = false
+
+# 关于软件包的一个简短介绍。
+description = "哈哈哈,我也不知道要说啥"
+
+# 下面这些字段标明了软件包仓库的更多信息
+documentation = "..."
+homepage = "..."
+repository = "..."
+
+# 顾名思义，此字段指向的文件就是传说中的ReadMe，
+# 并且，此文件的内容最终会保存在注册表数据库中。
+readme = "readme.md"
+
+# 软件包的许可证，必须是cargo仓库已列出的已知的标准许可证。
+#license = "..."
+
+# 软件包的非标许可证书对应的文件路径。
+#license-file = "..."
+
+# 项目的依赖描述
+[dependencies]
+
+# 从create.io获取依赖, * 表示最新版,= "> 0.6.0, < 0.8.0"
+libc = "0.2"
+
+# 从本地路径获取依赖,或者{ git = "https://github.com/wellorange/obkect" }表示从GitHub获取
+export={ version = "0.1.0", path = "../export" }
+lib   ={ version = "0.1.0", path = "../lib" }
+
+libloading = "*"
+sharedlib  = "*"
+[build-dependencies]
+cc = "*"
+
+
+
+
+# 详细文档参考http://wiki.jikexueyuan.com/project/rust-primer/cargo-detailed-cfg/cargo-detailed-cfg.html
