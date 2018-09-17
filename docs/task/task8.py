@@ -13,6 +13,7 @@ file_name = 'input3.txt'
 # dataset 是从input读取的数据集合
 dataset = []
 datapoint=[]
+
 for index,line in enumerate(open(file_name)):
        if index<3:
            # 0 矩阵大小
@@ -86,6 +87,7 @@ for i in range(3):
   maxx.append(inn)
   del ww[inn]
 
+
 def iflist(list1,list2,list3):
     if  (len(set(list1) & set(list3))!=0):
         return True
@@ -102,33 +104,33 @@ def Policepoint2(dataset):
        vector = np.arange(0, n*n, 1) # 正常的矩阵初始化
        vector = vector.reshape(n, n) # 矩阵初始化
        possibly={}
-       possiable=[]
        for i in range(n):
             for ii in range(n):
               possibly[vector[i,ii]]=Policepoint([i,ii],vector)     
+
        def recall(key,keyvalue,p):
            global toal
            if len(key)==p:
+            # n=15的时候打印吧,因为你会感觉程序没有运行 打印才发现程序在运行
+            #   print(key,keyvalue)
                temp=0
                for ii in key:
                     temp+=w[ii]
                if temp>toal:
                    toal=temp
                return
-           if len(keyvalue)==0 or len(key)==0:
+           if len(keyvalue)==0:
                return
            for k,v in  enumerate(keyvalue):
-                # if v>key[len(key)-1]:
-                if iflist(key,keyvalue,maxx) and v>key[len(key)-1]:
-                    
+                # 去除重复的去除
+                if v>key[len(key)-1]: 
                     kk=key.copy()
                     kk.append(v)
                     posi=np.intersect1d(keyvalue, possibly[v])
-                    # val=np.delete(keyvalue, [k])
-                    # print(kk,posi)
-                    recall(kk,posi,p)
+                    if iflist(kk,posi,maxx): #概率在去一次   
+                        recall(kk,posi,p)
 
-
+       # one a police
        if dataset[1]==1:
          for i in range(n):
              for ii in range(n):
@@ -136,13 +138,12 @@ def Policepoint2(dataset):
                      toal=numberM[i][ii]
        else:
           for index in possibly:
-        #  for index in maxx:
            value=possibly[index]
            kk=[index]
-        #    print(kk,value)
            recall(kk,value,p)
           
-       
+
+# test code       
 start = time.time()
 Policepoint2(dataset)
 end = time.time()
