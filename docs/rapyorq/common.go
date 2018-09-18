@@ -3,15 +3,16 @@ package raptorQ
 import (
 	"fmt"
 	"math"
+	"sync"
 )
 
 type TuplS struct {
-	d  int
-	a  int
+	a int
 	b  int
-	d1 int
+	d  int
 	a1 int
 	b1 int
+	d1 int
 }
 
 type Element struct {
@@ -50,6 +51,7 @@ type Common struct {
 	C1       []Symbol // size M: S+H(zero)+ K(symbols)+(K1-k)(zero)
 	C        []Symbol // L intermediate symbols  中间符号
 	sources  [][]byte // pointer to original source array 数据源
+	sour  [][]byte // pointer to original source array 数据源
 	R        []Symbol // repair symbols           修正符号
 	A        [][]byte // generator matrix         生成矩阵
 	Abak     [][]byte // backup of A              A的备份
@@ -83,7 +85,7 @@ func (c *Common) Tuple() {
 	for i := 0; i < c.M+40; i++ {
 		c.Tuples[i] = c.Tupl(i)
 	}
-     //c.Test()
+    
 	c.tupl_len = c.M + 40
 }
 
@@ -412,21 +414,23 @@ func (c *Common) Code(source [][]byte, N int, esi []int) bool {
 
 	}
 
-	c.sources = source
+   c.sources=source
 	return true
 }
 
 
 
 // 中间符号生成
-func (c *Common) Generate_intermediates() []Symbol {
-	c.Test()
+func (c *Common) Generate_intermediates(soe [][]byte) []Symbol {
      var i,k1,k2,j int
 	// 计算A^^-1生成中间符号C,使用高斯消元算法
 	if c.status != 2 {
 		return nil
 	}
-     
+
+	
+	 var  ss sync.Pool
+	 ss.Put(soe)
 	cols1 := make([]int, c.L)
 	cols2 := make([]int, c.L)
 	
@@ -448,7 +452,7 @@ func (c *Common) Generate_intermediates() []Symbol {
 	}
 
 
-
+   
 	// setup 1
 	_I, _U, r, gtone_start := 0, c.P, 0, 0
 	for _I+_U < c.L {
@@ -459,16 +463,13 @@ func (c *Common) Generate_intermediates() []Symbol {
 		index, o, r = c.M, c.L, c.L
 		
 		for i = _I; i < c.M; i++ {
-			//fmt.Println(i,c.degree[i].gtone,c.degree[i].curr)
 			if (gtone_start != 0 || (gtone_start == 0 && c.degree[i].gtone == 0)) && c.degree[i].curr > 0 && c.degree[i].curr <= r {
 				
 				index = i
 				
 				if c.degree[i].curr < r || (c.degree[i].curr == r && c.degree[i].ori < o) {
 					o = c.degree[i].ori
-					r = c.degree[i].curr
-				//	fmt.Println(r)
-				
+					r = c.degree[i].curr	
 				}
 			}
 		}
@@ -562,6 +563,7 @@ func (c *Common) Generate_intermediates() []Symbol {
 					}
 				}
 				c.C1[i].muladd(c.C1[_I], v)
+				
 			}
 
 			for j = c.L - _U - (r - 1); j < c.L-_U; j++ {
@@ -577,28 +579,17 @@ func (c *Common) Generate_intermediates() []Symbol {
 
 		_I++
 		_U += r - 1
-
+		
 		
 	}
 	
-
-
-
-
-
-
-
-  
-	
-
-	 	
-
-
+	c.Test()
+//	c.Test()
 
 	if !c.gaussian_elimination(_I, _I) {
 		return nil
 	}
-	fmt.Println("_I=",_I,"_U=",_U)
+	// fmt.Println("_I=",_I,"_U=",_U)
 
 	/* step 3 */
 	for jj := _I; jj < c.L; jj++ {
@@ -621,8 +612,10 @@ func (c *Common) Generate_intermediates() []Symbol {
 		c.C[c.C1[i].esi] = c.C1[i]
 		c.C1[i] = s
 	}
-
+	
 	c.status = 3
+
+
 	return c.C
 }
 
@@ -733,6 +726,20 @@ func (c *Common) Generate_repairs(count int) []Symbol {
 
 
 
+
+func (c *Common) Recover_symbol(x int) Symbol{
+	if x >=c.K {
+		return Symbol{}
+	}
+	tu:=c.Tuples[x]
+	s:=c.LTEnc(CC,tu)
+	return s
+}
+
+
+
+
+
 func (c *Common) LTEnc(C_L []Symbol, tupl TuplS) Symbol {
 	a := tupl.a
 	b := tupl.b
@@ -740,21 +747,23 @@ func (c *Common) LTEnc(C_L []Symbol, tupl TuplS) Symbol {
 	s := C_L[b]
 	for j := 1; j < d; j++ {
 		b = (b + a) % c.W
-		s.xxor(&C_L[b])
+		s.xxor(C_L[b])
 	}
+	
 	a = tupl.a1
 	b = tupl.b1
 	d = tupl.d1
 	for b >= c.P {
 		b = (b + a) % c.P1
 	}
-	s.xxor(&C_L[c.W+b])
-
+	s.xxor(C_L[c.W+b])
+	
 	for j := 1; j < d; j++ {
+		b = (b + a) % c.P1;
 		for b >= c.P {
 			b = (b + a) % c.P1
 		}
-		s.xxor(&C_L[c.W+b])
+		s.xxor(C_L[c.W+b])
 	}
 	return s
 }
@@ -830,8 +839,9 @@ func (c *Common) Test() {
 	for i := 0; i < len(c.C); i++ {
 		fmt.Printf("%4d", c.C[i])
 	fmt.Println()
-}
-    fmt.Println("sources maxtrix:")
+}  
+	fmt.Println("sources maxtrix:")
+
 	for i := 0; i < len(c.sources); i++ {
 		for j := 0; j < len(c.sources[i]); j++ {
 			fmt.Printf("%4d", c.sources[i][j])
@@ -850,9 +860,9 @@ func (c *Common) Test() {
 	fmt.Println("Abak maxtrix:")
 	for i := 0; i < len(c.Abak); i++ {
 		for j := 0; j < len(c.Abak[i]); j++ {
-			fmt.Printf("%4d", c.Abak[i][j])
+			//fmt.Printf("%4d", c.Abak[i][j])
 		}
-		fmt.Println()
+		//fmt.Println()
 	}
 
 }
@@ -920,4 +930,35 @@ func Deg(v int,w int) int {
 	}else {
 		return w-2
 	}
+}
+
+
+var CC=[]Symbol{
+{data:[]byte{119, 212, 130, 126},nbytes:4},
+{data:[]byte{244, 26 ,175, 196},nbytes:4,sbn:32630,esi:1},
+{data:[]byte{143, 208,  78,  74 }  ,nbytes:4 ,sbn:0 ,esi:2},
+ {data:[]byte{65, 111, 161,  98 }  ,nbytes:4 ,sbn:0 ,esi:3},
+ {data:[]byte{68 ,132,  93,  35 }  ,nbytes:4 ,sbn:0 ,esi:4},
+ {data:[]byte{23,   9,  59,  56 }  ,nbytes:4 ,sbn:0 ,esi:5},
+ {data:[]byte{79, 170, 233,  46 }  ,nbytes:4 ,sbn:0 ,esi:6},
+{data:[]byte{169, 103, 167, 187 }  ,nbytes:4 ,sbn:0 ,esi:7},
+{data:[]byte{205, 158,  90,  71 }  ,nbytes:4 ,sbn:0 ,esi:8},
+{data:[]byte{174,  86, 158, 122 }  ,nbytes:4 ,sbn:0 ,esi:9},
+ {data:[]byte{74,  76, 113, 103 }  ,nbytes:4 ,sbn:0 ,esi:10},
+ {data:[]byte{12, 124, 110, 205 }  ,nbytes:4 ,sbn:0 ,esi:11},
+{data:[]byte{101,  73, 124,  251 }  ,nbytes:4 ,sbn:0 ,esi:12},
+{data:[]byte{229, 167,  10,   2 }  ,nbytes:4 ,sbn:0 ,esi:13},
+{data:[]byte{232,  39,  29,  74 }  ,nbytes:4 ,sbn:0 ,esi:14},
+{data:[]byte{225, 190,  58, 223 }  ,nbytes:4 ,sbn:0 ,esi:15},
+{data:[]byte{212,  49, 202,  50 }  ,nbytes:4 ,sbn:0 ,esi:16},
+{data:[]byte{23,  61, 185, 114 }  ,nbytes:4 ,sbn:0 ,esi:17},
+{data:[]byte{219,  97,  63, 198 }  ,nbytes:4 ,sbn:0 ,esi:18},
+{data:[]byte{214, 231, 207, 216 }  ,nbytes:4 ,sbn:0 ,esi:19},
+{data:[]byte{184 ,129, 233,  18 }  ,nbytes:4 ,sbn:0 ,esi:20},
+{data:[]byte{170,  29,  249, 187 }  ,nbytes:4 ,sbn:0 ,esi:21},
+{data:[]byte{207,  48, 111,  59 }  ,nbytes:4 ,sbn:0 ,esi:22},
+{data:[]byte{241, 242, 200, 218 }  ,nbytes:4 ,sbn:0 ,esi:23},
+{data:[]byte{151, 178,  19, 167 }  ,nbytes:4 ,sbn:0 ,esi:24},
+{data:[]byte{145,  95,  89,  11 }  ,nbytes:4 ,sbn:0 ,esi:25},
+{data:[]byte{ 60 , 85 , 62 ,145 }  ,nbytes:4 ,sbn:0 ,esi:26},
 }
