@@ -137,10 +137,21 @@ def Policepoint2(dataset):
                  if toal<numberM[i][ii]:
                      toal=numberM[i][ii]
        else:
-          for index in possibly:
-           value=possibly[index]
-           kk=[index]
-           recall(kk,value,p)
+           for index in possibly:
+              flag=0
+              if dataset[1]==dataset[0]:
+                  flag=dataset[0]
+              else:
+                  falg=(dataset[0]-dataset[1])*dataset[0]
+
+              if index<flag:
+                #   print(index)
+                  value=possibly[index]
+                  kk=[index]
+                  recall(kk,value,p)
+              else:
+                  break
+          
           
 
 # test code       
