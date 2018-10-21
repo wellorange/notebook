@@ -1,14 +1,7 @@
-import numpy as np
-import string
-import time
-import os
-from collections import defaultdict
-
-def tree(): 
-   return defaultdict(tree)    
 
 
-file_name = 'case/input39.txt'
+
+file_name = 'case/input25.txt'
 # dataset 是从input读取的数据集合
 token=("bed","park","la_num","la","my_num","my","list_num","list")
 cur_token=token[0]
@@ -107,8 +100,14 @@ for index,line in enumerate(open(file_name)):
 my=[]
 you=[]
 our=[]
-
+mexi=[]
+yoexi=[]
+record={}
 for line in dataset[7]:
+    a=0
+    for i in line[13:21]:
+        a+=int(i)
+    record[line[0:5]]=a
     if line[0:5] not in exits:
        if (line[10:11]=="N" and line[11:12]=="Y" and line[12:13]=="Y") and (line[5:6]!="F" or int(line[6:9])<=17 or line[9:10]!="N"):
           my.append(line)
@@ -120,21 +119,14 @@ for line in dataset[7]:
        if line[5:6]=="F" and int(line[6:9])>17 and line[9:10]=="N" and line[10:11]=="N" and line[11:12]=="Y" and line[12:13]=="Y":
           our.append(line)
 
+    if  line[0:5] in mykey:
+        mexi.append(line)
+    if  line[0:5] in youkey:
+        yoexi.append(line)
 
 
 
-parent=0
-mymumber=[0,0,0,0,0,0,0]
 
-for ex in myexits:
-    tem=ex[13:21]
-    mymumber[0]+=int(tem[0])
-    mymumber[1]+=int(tem[1])
-    mymumber[2]+=int(tem[2])
-    mymumber[3]+=int(tem[3])
-    mymumber[4]+=int(tem[4])
-    mymumber[5]+=int(tem[5])
-    mymumber[6]+=int(tem[6])
 
 # print(my)
 
@@ -146,51 +138,74 @@ for ex in myexits:
     
 
 
-pp=0
-
-def Calculate(number,list,n):
-    global pp
-
-    tem=list[0][13:21]
-    number[0]+=int(tem[0])
-    number[1]+=int(tem[1])
-    number[2]+=int(tem[2])
-    number[3]+=int(tem[3])
-    number[4]+=int(tem[4])
-    number[5]+=int(tem[5])
-    number[6]+=int(tem[6])
-    n+=1
-    if (dataset[0][0]+1) in mymumber:
-        print("asdasd")
-        print(mymumber)
-    else:
-       if  n==dataset[0][0]:
-           p=number[0]+number[1]+number[2]+number[3]+number[4]+number[5]+number[6]
-           if p>pp:
-               pp=p
-       else:
-           Calculate(number,list[1:],n)
+print("床位:",dataset[0][0],"  车位:",dataset[1][0])
+print("myexit")
 
 
-# print("myexit")
-# for my in youkey:
-#     print(my)
-# print("youexit")
-# for you in youkey:
-#     print(you)
 
+myn=0
+myrecord=0
+youn=0
+yourecord=0
+for mmy in mexi:
+    a=0
+    for i in mmy[13:21]:
+        a+=int(i)
+    print(mmy,a)
+print("            ")
+print("youexit")
+for youu in yoexi:
+    a=0
+    for i in youu[13:21]:
+        a+=int(i)
+    print(youu,a)
+
+print("            ")
 print("my")
+
 for m in my:
-    print(m)
+    a=0
+    for i in m[13:21]:
+        a+=int(i)
+    print(m,a)
 
 print("            ")
 print("you")
 for y in you:
-    print(y)
+    a=0
+    for i in y[13:21]:
+        a+=int(i)
+    print(y,a)
 print("            ")
+
+bibi=[]
 print("our:")
 for o in our:
-   print(o)
-#Calculate(mymumber,my,dataset[4][0])
+    a=0
+    for i in o[13:21]:
+        a+=int(i)
+    cc=[]
+    cc.append(o)
+    cc.append(a)
+    bibi.append(cc)
+    print(o,a)
 
-#print(pp)
+
+
+
+def takeSecond(elem):
+    return elem[1]
+# 指定第二个元素排序
+bibi.sort(key=takeSecond,reverse=True)
+iff="my"
+for ii in bibi:
+     if iff=="my":
+         mykey.append(ii[0][0:5])
+         iff="you"
+     else :
+         youkey.append(ii[0][0:5])
+         iff="my"
+
+print(record)
+print(mykey)
+print(youkey)
