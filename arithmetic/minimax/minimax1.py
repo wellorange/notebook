@@ -192,7 +192,7 @@ def Calculatemy(lis,number,n,myrecord,yourecord):
         Calculateyou(sublis,number,n,myrecord,yourecord)
 Calculatemy(our+my,myexittotal,dataset[1][0]-myexitesnumber,[],[])
 
-# 上面出现的数字是针对case25的,case25跑同之后再替换掉  作用是根据递归的深度来获取路径
+# 上面出现的数字9 10 是针对case25的,case25跑同之后再替换掉  作用是根据递归的深度来获取路径
 
 
 
